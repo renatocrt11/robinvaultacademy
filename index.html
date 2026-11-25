@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RobinVault Course</title>
+<link rel="artifact-thumbnail" href="media/poster_en.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm, trustworthy teacher — plain language, nothing hyped.
+   IDEA: a vault's control panel — one big screen (the lesson) and a clear ledger of modules.
+   PICTURE: the lesson player itself, large, at the top.
+   COLOUR and TYPE: navy, blue and turquoise (client brand); amber only for warnings. Inter.
+   LAYOUT: header with language/subtitle/theme/size controls, player + lesson notes, module ledger beside (stacks on phones). */
+:root{color-scheme:light dark;
+ --navy:#0A1F44;--blue:#1E6FD9;--turq:#14B8A6;--turq2:#22D3C5;--amber:#B7791F;
+ --bg:light-dark(#F3F7FD,#071735);--panel:light-dark(#FFFFFF,#0E2550);--ink:light-dark(#0A1F44,#EAF2FF);
+ --muted:light-dark(#40557A,#A9BEDD);--line:light-dark(#D5E1F2,#1F3A6E);--chip:light-dark(#E6F0FC,#14305F);
+ --accent:light-dark(#0F8F84,#22D3C5);--warnbg:light-dark(#FFF6E0,#2A2410);--warnink:light-dark(#7A4B00,#FFD27A);
+ --fs:17px}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+:root[data-size="1"]{--fs:20px}:root[data-size="2"]{--fs:24px}
+*{box-sizing:border-box;min-width:0}
+html{font-size:var(--fs)}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 Inter,system-ui,sans-serif;overflow-x:clip}
+a{color:var(--accent)}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--turq2);outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:12px;top:12px;background:var(--panel);padding:8px 12px;z-index:9}
+header{background:var(--navy);color:#EAF2FF;padding:14px max(4vw,16px);display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;border-bottom:4px solid;border-image:linear-gradient(90deg,var(--blue),var(--turq2)) 1}
+.brand{display:flex;gap:12px;align-items:center;font-weight:800;font-size:1.1rem;letter-spacing:.01em}
+.brand b{color:var(--turq2)}
+.logo{width:40px;height:40px;flex:none}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:flex;border:1px solid #2F4E86;border-radius:12px;overflow:hidden}
+.seg button{background:transparent;border:0;color:#EAF2FF;padding:0 14px;min-height:44px;min-width:44px;cursor:pointer;font-weight:600;font-size:.85rem}
+.seg button[aria-pressed=true]{background:var(--blue);color:#fff}
+.lbl{font-size:.72rem;color:#A9BEDD;margin-right:4px}
+.grp{display:flex;align-items:center;gap:6px}
+.notice{background:var(--warnbg);color:var(--warnink);padding:12px max(4vw,16px);font-weight:600;display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid var(--line)}
+.notice svg{flex:none;margin-top:3px}
+main{max-width:1320px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px);display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px}
+@media(max-width:980px){main{grid-template-columns:minmax(0,1fr)}}
+.kicker{color:var(--accent);font-weight:700;font-size:.85rem;margin:0 0 4px}
+h1{font-size:clamp(1.6rem,3vw,2.4rem);line-height:1.1;margin:0 0 18px;text-wrap:balance}
+h2{font-size:1.25rem;margin:0 0 12px}
+.player{position:relative;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 18px 50px -20px rgba(10,31,68,.55);aspect-ratio:16/9}
+.player video{width:100%;height:100%;display:block}
+.cap{position:absolute;left:50%;transform:translateX(-50%);bottom:12%;width:max-content;max-width:88%;text-align:center;pointer-events:none}
+.cap span{background:rgba(5,14,32,.86);color:#fff;font-weight:600;font-size:calc(var(--fs) * 1.15);line-height:1.35;padding:.2em .55em;border-radius:8px;white-space:pre-line;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.cap:empty{display:none}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:14px 0 6px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--chip);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600}
+.btn{background:var(--blue);color:#fff;border:0;border-radius:12px;min-height:44px;padding:0 18px;font-weight:700;cursor:pointer}
+.btn.done{background:var(--turq)}
+.btn.ghost{background:var(--chip);color:var(--ink)}.btn:disabled{opacity:.4;cursor:default}
+.navb{display:flex;flex-wrap:wrap;gap:8px}
+a.les{text-decoration:none;border-radius:8px;padding:5px 8px;margin:0 -8px;color:var(--ink);font-weight:600}a.les>span:first-child::before{content:"▶  ";color:var(--accent);font-size:.75em}div.les{opacity:.75}a.les:hover{background:var(--chip)}a.les.on{background:var(--chip)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(16px,2.4vw,26px);margin-top:22px}
+.points{margin:0;padding-left:1.2em}.points li{margin:6px 0}
+.points .warn{color:var(--warnink);font-weight:700}
+.q{margin:16px 0 0}.q p{font-weight:700;margin:0 0 8px}
+.opts{display:grid;gap:8px}
+.opts button{text-align:left;background:var(--chip);border:2px solid transparent;border-radius:12px;min-height:44px;padding:8px 14px;cursor:pointer}
+.opts button.ok{border-color:var(--turq);background:light-dark(#DDF7F3,#0F3B46)}
+.opts button.no{border-color:#D9534F}
+.fb{min-height:1.6em;margin:6px 0 0;font-weight:600;color:var(--muted)}
+aside .card{margin-top:0}
+.mod{border-top:1px solid var(--line);padding:12px 0}.mod:first-of-type{border-top:0;padding-top:0}
+.mod h3{font-size:.95rem;margin:0 0 6px;display:flex;gap:10px;align-items:baseline}
+.mod h3 .n{color:var(--accent);font-weight:800;flex:none}
+.les{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;font-size:.88rem;color:var(--muted);padding:3px 0}
+.les.on{color:var(--ink);font-weight:700}
+.tag{flex:none;font-size:.75rem;white-space:nowrap;background:var(--chip);border-radius:999px;padding:1px 10px;align-self:center}
+.tag.now{background:var(--blue);color:#fff}.tag.ok{background:var(--turq);color:#fff}
+.prog{height:10px;background:var(--chip);border-radius:99px;overflow:hidden;margin:4px 0 14px}.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--turq2))}
+footer{max-width:1320px;margin:0 auto;padding:10px max(4vw,16px) 40px;color:var(--muted);font-size:.85rem}
+footer p{max-width:900px}
+@media(max-width:600px){header{flex-direction:column;align-items:flex-start}.lbl{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#lesson" data-i="skip">Skip to lesson</a>
+<header>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E6FD9"/><stop offset="1" stop-color="#22D3C5"/></linearGradient></defs><rect x="10" y="10" width="180" height="180" rx="44" fill="url(#g)"/><rect x="58" y="78" width="84" height="70" rx="12" fill="none" stroke="#fff" stroke-width="12"/><path d="M76 78V62a24 24 0 0 1 48 0v16" fill="none" stroke="#fff" stroke-width="12"/><circle cx="100" cy="113" r="10" fill="#fff"/></svg>
+    <span>Robin<b>Vault</b> <span data-i="course">Course</span></span>
+  </div>
+  <div class="ctrls">
+    <div class="grp"><span class="lbl" data-i="audio">Audio</span><div class="seg" id="lang" role="group" aria-label="Language">
+      <button data-v="en" aria-pressed="true">EN</button><button data-v="pt" aria-pressed="false">PT</button></div></div>
+    <div class="grp"><span class="lbl" data-i="subs">Subtitles</span><div class="seg" id="sub" role="group" aria-label="Subtitles">
+      <button data-v="off" aria-pressed="false" data-i="off">Off</button><button data-v="en" aria-pressed="true">EN</button><button data-v="pt" aria-pressed="false">PT</button></div></div>
+    <div class="grp"><span class="lbl" data-i="text">Text</span><div class="seg" id="size" role="group" aria-label="Text size">
+      <button data-v="0" aria-pressed="true" aria-label="Normal text">A</button><button data-v="1" aria-pressed="false" aria-label="Large text" style="font-size:1rem">A+</button><button data-v="2" aria-pressed="false" aria-label="Extra large text" style="font-size:1.15rem">A++</button></div></div>
+    <div class="grp"><span class="lbl" data-i="mode">Mode</span><div class="seg" id="theme" role="group" aria-label="Theme">
+      <button data-v="light" aria-pressed="false" data-i="light">Light</button><button data-v="dark" aria-pressed="false" data-i="dark">Dark</button></div></div>
+  </div>
+</header>
+
+<div class="notice" role="note">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 22 20H2z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10v5" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="17.6" r="1.3" fill="currentColor"/></svg>
+  <span data-i="notice">Free educational course about RobinVault. Not investment advice — crypto assets carry a risk of loss.</span>
+</div>
+
+<main>
+  <section id="lesson" aria-labelledby="lt">
+    <p class="kicker" id="kick">Module 1 · Lesson 1</p>
+    <h1 id="lt">Where does RobinVault live?</h1>
+    <div class="player">
+      <video id="v" controls playsinline preload="metadata" poster="media/poster_en.jpg">
+        <source id="src" src="media/aula01_en.mp4" type="video/mp4">
+      </video>
+      <div class="cap" id="cap" aria-hidden="true"></div>
+    </div>
+    <div class="bar">
+      <span class="pill">⏱ <span id="len">1 min</span></span>
+      <span class="navb"><button class="btn ghost" id="prev">← Previous</button><button class="btn" id="done">Mark as complete</button><button class="btn ghost" id="next">Next →</button></span>
+    </div>
+
+    <div class="card">
+      <h2 data-i="keyh">Key points</h2>
+      <ul class="points" id="points"></ul>
+    </div>
+
+    <div class="card" aria-labelledby="qh">
+      <h2 id="qh" data-i="quizh">Quick check</h2>
+      <div id="quiz"></div>
+    </div>
+  </section>
+
+  <aside aria-label="Course modules">
+    <div class="card">
+      <h2 data-i="modh">Course modules</h2>
+      <div class="prog" aria-hidden="true"><i id="pbar"></i></div>
+      <div id="mods"></div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <p data-i="foot1">Cryptoassets are highly volatile and you can lose all the money you put in. Nothing in this course is investment, legal or tax advice. Values are shown in US dollars.</p>
+  <p data-i="foot2">RobinVault is not offered to persons in the United States, Canada, the United Kingdom, Switzerland, the United Arab Emirates or sanctioned countries.</p>
+</footer>
+
+<script>
+{
+const UI={
+ en:{skip:"Skip to lesson",course:"Course",audio:"Audio",subs:"Subtitles",text:"Text",mode:"Mode",off:"Off",light:"Light",dark:"Dark",
+  notice:"Free educational course about RobinVault. Not investment advice — crypto assets carry a risk of loss.",
+  mark:"Mark as complete",marked:"Completed ✓",keyh:"Key points",quizh:"Quick check",modh:"Course modules",prev:"← Previous",next:"Next →",
+  soon:"Coming soon",now:"Now",doneTag:"Done",right:"Correct!",wrong:"Not quite — try again.",mod:"Module",les:"Lesson",min:"min",
+  foot1:"Cryptoassets are highly volatile and you can lose all the money you put in. Nothing in this course is investment, legal or tax advice. Values are shown in US dollars. Screens are real captures of robinvault.io; personal data was blurred, and numbers are a snapshot from the day of recording.",
+  foot2:"RobinVault is not offered to persons in the United States, Canada, the United Kingdom, Switzerland, the United Arab Emirates or sanctioned countries."},
+ pt:{skip:"Ir para a aula",course:"Curso",audio:"Áudio",subs:"Legendas",text:"Texto",mode:"Modo",off:"Sem",light:"Claro",dark:"Escuro",
+  notice:"Curso gratuito e educativo sobre a RobinVault. Não é recomendação de investimento — criptoativos têm risco de perda.",
+  mark:"Marcar como concluída",marked:"Concluída ✓",keyh:"Pontos-chave",quizh:"Teste rápido",modh:"Módulos do curso",prev:"← Anterior",next:"Próxima →",
+  soon:"Em breve",now:"Agora",doneTag:"Feita",right:"Correto!",wrong:"Quase — tente de novo.",mod:"Módulo",les:"Aula",min:"min",
+  foot1:"Criptoativos são muito voláteis e você pode perder todo o dinheiro que colocar. Nada neste curso é recomendação de investimento, jurídica ou tributária. Valores em dólares americanos. As telas são capturas reais da robinvault.io; dados pessoais foram desfocados, e os números são uma foto do dia da gravação.",
+  foot2:"A RobinVault não é oferecida a pessoas nos Estados Unidos, Canadá, Reino Unido, Suíça, Emirados Árabes Unidos ou países sob sanção."}
+};
+/* Course outline: module titles and lessons; lessons with an id have a video. */
+const MODS=[
+ {en:"Welcome",pt:"Boas-vindas",ls:[{id:"m0l1"},{id:"m0l2"}]},
+ {en:"Foundations",pt:"Fundamentos",ls:[{id:"m1l1"},{id:"m1l2"},{id:"m1l3"}]},
+ {en:"Your wallet",pt:"Sua carteira",ls:[{id:"m2l1"},{id:"m2l2"}]},
+ {en:"RobinVault tour",pt:"Tour pela RobinVault",ls:[{id:"m3l1"},{id:"m3l2"}]},
+ {en:"Depositing",pt:"Depositar",ls:[{id:"m4l1"},{id:"m4l2"}]},
+ {en:"Earning and withdrawing",pt:"Render e sacar",ls:[{id:"m5l1"}]},
+ {en:"Your portfolio",pt:"Seu portfólio",ls:[{id:"m6l1"}]},
+ {en:"Risks",pt:"Riscos",ls:[{id:"m7l1"}]},
+ {en:"Transparency and rules",pt:"Transparência e regras",ls:[{id:"m8l1"}]},
+ {en:"Final checklist",pt:"Checklist final",ls:[{id:"m9l1"}]}
+];
+const LES={
+ m0l1:{len:1,
+  en:{t:"How this course works",p:["Free and open: no sign-up needed.","Pick the audio language and the subtitles separately at the top.","You can make the text bigger and switch light or dark mode.","Each lesson has key points and a quick check; mark it done to track progress.","All values are in US dollars; on-screen numbers are a snapshot from the recording day.","This is education, not investment advice."],
+   q:[["Do you need to sign up to take the course?",["No, it is free and open","Yes, with email","Yes, with your wallet"],0],["Can audio and subtitles be in different languages?",["Yes, you choose each one separately","No","Only in English"],0],["The numbers on screen are…",["A snapshot from the recording day","Live and guaranteed","Promises of return"],0]]},
+  pt:{t:"Como funciona o curso",p:["Gratuito e aberto: não precisa de cadastro.","No topo, escolha o idioma do áudio e as legendas separadamente.","Dá para aumentar a letra e trocar entre modo claro e escuro.","Cada aula tem pontos-chave e um teste rápido; marque como concluída para ver o progresso.","Todos os valores estão em dólares; os números nas telas são uma foto do dia da gravação.","Isto é educação, não recomendação de investimento."],
+   q:[["Precisa de cadastro para fazer o curso?",["Não, é gratuito e aberto","Sim, com e-mail","Sim, com a carteira"],0],["Áudio e legenda podem ser em idiomas diferentes?",["Sim, você escolhe cada um separadamente","Não","Só em inglês"],0],["Os números nas telas são…",["Uma foto do dia da gravação","Ao vivo e garantidos","Promessas de retorno"],0]]}},
+ m0l2:{len:1,
+  en:{t:"Risks and who can use RobinVault",p:["Crypto is volatile: you can lose part or all of what you put in.","Yields change every day and are not guaranteed; contracts and bridges can fail.","Only invest what you can afford to lose; start small and test a deposit and a withdrawal.","18+ only; not offered in the US, Canada, UK, Switzerland, UAE or sanctioned countries.","Rules and taxes vary by country — ask an accountant or lawyer where you live."],
+   q:[["Are the yields guaranteed?",["No, they change every day","Yes","Only for the first month"],0],["What is the minimum age according to the terms?",["18","16","There is none"],0],["What is a good way to start?",["Small, testing a deposit and a withdrawal","With all your savings","By borrowing money"],0]]},
+  pt:{t:"Riscos e quem pode usar a RobinVault",p:["Cripto é volátil: você pode perder parte ou tudo o que colocar.","Os rendimentos mudam todo dia e não são garantidos; contratos e bridges podem falhar.","Só invista o que pode perder; comece pequeno e teste um depósito e um saque.","Só maiores de 18; não oferecida nos EUA, Canadá, Reino Unido, Suíça, Emirados ou países sob sanção.","Regras e impostos mudam de país para país — consulte um contador ou advogado de onde você mora."],
+   q:[["Os rendimentos são garantidos?",["Não, mudam todo dia","Sim","Só no primeiro mês"],0],["Qual é a idade mínima pelos termos?",["18 anos","16 anos","Não há"],0],["Qual é um bom jeito de começar?",["Pequeno, testando um depósito e um saque","Com todas as economias","Pegando dinheiro emprestado"],0]]}},
+ m1l2:{len:1,
+  en:{t:"Wallets, keys and seed phrases",p:["A wallet is an app that holds your keys; you sign every transaction yourself.","Your address starts with 0x and can be shared to receive money.","The seed phrase (12 or 24 words) is the master key: whoever has it can take everything.","Never share it or type it into a website — RobinVault will never ask for it.","Write it on paper and keep it offline; for larger amounts, consider a hardware wallet."],
+   q:[["Can you share your 0x address?",["Yes, to receive money","Never","Only with RobinVault"],0],["RobinVault asks for your seed phrase. What do you do?",["Refuse — RobinVault never asks for it","Type it in","Send a screenshot"],0],["Where should you keep your seed phrase?",["On paper, offline","In a cloud note","In a screenshot"],0]]},
+  pt:{t:"Carteiras, chaves e seed phrase",p:["A carteira é um app que guarda suas chaves; você mesmo assina cada transação.","Seu endereço começa com 0x e pode ser compartilhado para receber dinheiro.","A seed phrase (12 ou 24 palavras) é a chave-mestra: quem tiver pode levar tudo.","Nunca compartilhe nem digite num site — a RobinVault nunca vai pedir.","Anote no papel e guarde offline; para valores maiores, considere uma carteira de hardware."],
+   q:[["Pode compartilhar seu endereço 0x?",["Sim, para receber dinheiro","Nunca","Só com a RobinVault"],0],["Alguém pede sua seed phrase em nome da RobinVault. O que fazer?",["Recusar — a RobinVault nunca pede","Digitar","Mandar um print"],0],["Onde guardar a seed phrase?",["No papel, offline","Numa nota na nuvem","Num print"],0]]}},
+ m1l3:{len:1,
+  en:{t:"Stablecoins, USDC and USDG",p:["A stablecoin is a token designed to be worth one US dollar, backed by the issuer's reserves.","You can deposit USDC or USDT, or also ETH or BNB.","Inside the vaults, the digital dollar is USDG (Global Dollar), issued by Paxos.","Stable doesn't mean risk-free: a stablecoin can lose its peg.","RobinVault rates USDG as low risk — not zero risk."],
+   q:[["A stablecoin is designed to be worth…",["One US dollar","One share","One bitcoin"],0],["Which digital dollar is used inside the vaults?",["USDG","BNB","ETH"],0],["Is a stablecoin risk-free?",["No, it can lose its peg","Yes, always","Only on weekends"],0]]},
+  pt:{t:"Stablecoins, USDC e USDG",p:["Stablecoin é um token feito para valer um dólar, lastreado nas reservas do emissor.","Você pode depositar USDC ou USDT, e também ETH ou BNB.","Dentro dos vaults, o dólar digital é o USDG (Global Dollar), emitido pela Paxos.","Estável não quer dizer sem risco: uma stablecoin pode perder a paridade.","A RobinVault classifica o USDG como risco baixo — não risco zero."],
+   q:[["Uma stablecoin é feita para valer…",["Um dólar americano","Uma ação","Um bitcoin"],0],["Qual dólar digital é usado dentro dos vaults?",["USDG","BNB","ETH"],0],["Stablecoin é sem risco?",["Não, pode perder a paridade","Sim, sempre","Só nos fins de semana"],0]]}},
+ m2l1:{len:1,
+  en:{t:"Install and secure a wallet",p:["Choose a well-known wallet, such as MetaMask, from its official site or app store only.","Avoid ads and links in messages — fake wallet apps exist.","Set a strong password and write the seed phrase on paper, in order.","Lock the wallet when done and check the address is robinvault.io before connecting.","Read every request before signing, and test with a small amount first."],
+   q:[["Where should you download a wallet?",["Only from the official site or store","From an ad","From a link in a message"],0],["What should you check before connecting?",["That the address is robinvault.io","The weather","Nothing"],0],["Before moving real amounts you should…",["Test a small deposit and withdrawal","Sign everything quickly","Share your seed phrase"],0]]},
+  pt:{t:"Instalar e proteger a carteira",p:["Escolha uma carteira conhecida, como a MetaMask, só pelo site ou loja oficial.","Evite anúncios e links em mensagens — existem carteiras falsas.","Defina uma senha forte e anote a seed phrase no papel, na ordem.","Bloqueie a carteira ao terminar e confira se o endereço é robinvault.io antes de conectar.","Leia cada pedido antes de assinar e teste primeiro com um valor pequeno."],
+   q:[["Onde baixar a carteira?",["Só pelo site ou loja oficial","Por um anúncio","Por um link recebido"],0],["O que conferir antes de conectar?",["Se o endereço é robinvault.io","A previsão do tempo","Nada"],0],["Antes de mover valores de verdade, você deve…",["Testar um depósito e um saque pequenos","Assinar tudo rápido","Passar a seed phrase"],0]]}},
+ m2l2:{len:1,
+  en:{t:"Networks: BSC, Arbitrum, Base, Ethereum and Robinhood",p:["In the deposit panel you choose where your money is: BSC, Arbitrum, Ethereum, Base or Robinhood.","Each network charges gas: BNB on BSC; ETH on Arbitrum, Base and Ethereum.","Ethereum's main network is usually the most expensive.","Keep a little gas token on the same network; the panel shows the cost before you confirm.","The Relay bridge delivers USDG on Robinhood Chain; you only sign on your own network."],
+   q:[["On BSC, gas is paid in…",["BNB","ETH","USDG"],0],["Which network is usually the most expensive?",["Ethereum main network","Base","Arbitrum"],0],["Who does the crossing to Robinhood Chain?",["The Relay bridge","Your bank","Nobody"],0]]},
+  pt:{t:"Redes: BSC, Arbitrum, Base, Ethereum e Robinhood",p:["No painel de depósito você escolhe onde seu dinheiro está: BSC, Arbitrum, Ethereum, Base ou Robinhood.","Cada rede cobra gas: BNB na BSC; ETH na Arbitrum, Base e Ethereum.","A rede principal do Ethereum costuma ser a mais cara.","Tenha um pouco do token de gas na mesma rede; o painel mostra o custo antes de confirmar.","A bridge Relay entrega USDG na Robinhood Chain; você só assina na sua própria rede."],
+   q:[["Na BSC, o gas é pago em…",["BNB","ETH","USDG"],0],["Qual rede costuma ser a mais cara?",["A rede principal do Ethereum","Base","Arbitrum"],0],["Quem faz a travessia até a Robinhood Chain?",["A bridge Relay","O seu banco","Ninguém"],0]]}},
+ m4l2:{len:1,
+  en:{t:"Buying crypto with Pix",p:["The Pix button, for people in Brazil, opens a service run by Transak, an independent company.","Transak handles identity check, payment and quote, under its own terms.","Crypto goes straight to the wallet you connected; that address can't be edited in the flow.","RobinVault may receive a referral fee, already included in Transak's quote.","RobinVault never receives your reais or your documents; for problems, contact Transak support."],
+   q:[["Who runs the Pix purchase?",["Transak, an independent company","RobinVault","Your wallet"],0],["Where is the crypto delivered?",["To the wallet you connected","To a RobinVault account","By email"],0],["Something went wrong with a Pix purchase. Who do you contact?",["Transak support","Nobody","A stranger online"],0]]},
+  pt:{t:"Comprar cripto com Pix",p:["O botão Pix, para quem está no Brasil, abre um serviço da Transak, uma empresa independente.","A Transak cuida da verificação de identidade, do pagamento e da cotação, com os termos dela.","A cripto vai direto para a carteira conectada; esse endereço não pode ser alterado no processo.","A RobinVault pode receber uma taxa de indicação, já incluída na cotação da Transak.","A RobinVault nunca recebe seus reais nem seus documentos; em caso de problema, fale com o suporte da Transak."],
+   q:[["Quem faz a compra com Pix?",["A Transak, uma empresa independente","A RobinVault","A sua carteira"],0],["Para onde vai a cripto?",["Para a carteira que você conectou","Para uma conta da RobinVault","Por e-mail"],0],["Deu problema na compra com Pix. Com quem falar?",["Com o suporte da Transak","Com ninguém","Com um desconhecido na internet"],0]]}},
+ m6l1:{len:1,
+  en:{t:"Reading My Portfolio",p:["My Portfolio totals everything you hold in the vaults, in dollars (values blurred: real account).","Equity in RobinVault is your total; below it, the vaults where you have a balance.","Your fees shows what you've earned; Products with a balance counts your positions.","Deposit and Withdraw take you straight to the deposit panel.","Inside a vault: your shares, share gain and 30-day APR; the consolidated position sums profit and loss."],
+   q:[["What does “Equity in RobinVault” show?",["Your total in the vaults","A promise of return","The token price"],0],["What does “Your fees” show?",["What you've earned across all vaults","What you owe","The gas price"],0],["Where do you see the profit and loss of all products?",["In the consolidated position","Nowhere","Only by email"],0]]},
+  pt:{t:"Lendo o Meu portfólio",p:["O Meu portfólio soma tudo o que você tem nos vaults, em dólares (valores desfocados: conta real).","Equity in RobinVault é o seu total; abaixo, os vaults em que você tem saldo.","Your fees mostra o que você ganhou; Products with a balance conta suas posições.","Deposit e Withdraw levam direto ao painel de depósito e saque.","Dentro do vault: suas cotas, o ganho da cota e o APR de 30 dias; a posição consolidada soma lucro e prejuízo."],
+   q:[["O que mostra “Equity in RobinVault”?",["O seu total nos vaults","Uma promessa de retorno","O preço de um token"],0],["O que mostra “Your fees”?",["O que você ganhou somando todos os vaults","O que você deve","O preço do gas"],0],["Onde ver o lucro e prejuízo de todos os produtos?",["Na posição consolidada","Em lugar nenhum","Só por e-mail"],0]]}},
+ m9l1:{len:1,
+  en:{t:"Final checklist and quiz",p:["Before starting: 18+, eligible country, terms and risk reports read, only money you can afford to lose.","Wallet: from the official source, seed phrase on paper and offline, a little gas on the right network.","First deposit: check robinvault.io, start small, test a deposit and a withdrawal, read the Review.","Never share your seed phrase or sign Permit, Permit2, eth_sign or setApprovalForAll.","The APR is not a promise."],
+   q:[["Which of these should you NEVER sign?",["setApprovalForAll","The deposit Review you checked","A small test deposit"],0],["Your first deposit should be…",["Small, with a test withdrawal","As large as possible","Made on any website"],0],["The APR is…",["An estimate, not a promise","A guarantee","A fixed rate"],0]]},
+  pt:{t:"Checklist e prova final",p:["Antes de começar: 18+, país permitido, termos e relatórios de risco lidos, só dinheiro que você pode perder.","Carteira: da fonte oficial, seed phrase no papel e offline, um pouco de gas na rede certa.","Primeiro depósito: confira robinvault.io, comece pequeno, teste depósito e saque, leia a Revisão.","Nunca compartilhe a seed phrase nem assine Permit, Permit2, eth_sign ou setApprovalForAll.","O APR não é promessa."],
+   q:[["Qual destes você NUNCA deve assinar?",["setApprovalForAll","A Revisão do depósito que você conferiu","Um depósito pequeno de teste"],0],["Seu primeiro depósito deve ser…",["Pequeno, com um saque de teste","O maior possível","Feito em qualquer site"],0],["O APR é…",["Uma estimativa, não uma promessa","Uma garantia","Uma taxa fixa"],0]]}},
+ m1l1:{file:"aula01",len:1,
+  en:{t:"Where does RobinVault live?",p:["A blockchain is a public notebook: thousands of computers keep identical copies.","Ethereum is very secure, but can be slow and expensive.","Layer 2 networks bundle transactions and record them back on Ethereum — cheaper and faster.","Robinhood Chain is a Layer 2 built with Arbitrum technology, live since July 1, 2026."],
+   q:[["What is a blockchain, in simple terms?",["A public notebook kept in identical copies by thousands of computers","A bank account","A single company's database"],0],["What is a Layer 2?",["A faster lane that records back on Ethereum","A new type of wallet","A crypto exchange"],0],["Robinhood Chain is built with which technology?",["Arbitrum","Bitcoin","Solana"],0]]},
+  pt:{t:"Onde a RobinVault funciona?",p:["Uma blockchain é um caderno público: milhares de computadores guardam cópias idênticas.","O Ethereum é muito seguro, mas pode ser lento e caro.","Redes de Camada 2 juntam transações e registram tudo de volta no Ethereum — mais baratas e rápidas.","A Robinhood Chain é uma Camada 2 com tecnologia da Arbitrum, no ar desde 1º de julho de 2026."],
+   q:[["O que é uma blockchain, em palavras simples?",["Um caderno público guardado em cópias idênticas por milhares de computadores","Uma conta bancária","O banco de dados de uma única empresa"],0],["O que é uma Camada 2?",["Uma pista rápida que registra de volta no Ethereum","Um novo tipo de carteira","Uma corretora de cripto"],0],["A Robinhood Chain usa qual tecnologia?",["Arbitrum","Bitcoin","Solana"],0]]}},
+ m3l1:{len:1,
+  en:{t:"A tour of RobinVault",p:["RobinVault lets you invest in tokenized stocks and earn part of the fees other investors pay when they trade.","Money can come from BNB Chain, Arbitrum, Ethereum or Base.","There is one vault per asset — eight in total, including Meta, Microsoft, Nvidia, Google, Amazon and a gold fund.","Under Resources: security review, risk reports, how it works and live transparency.","The site works in Portuguese, English and Spanish."],
+   q:[["According to the home page, where do earnings come from?",["Fees other investors pay when they trade","A fixed interest rate","New users joining"],0],["How many vaults were shown?",["Eight","Two","Twenty"],0],["Where do you find the risk reports?",["Under Resources","Under My Portfolio","They are not published"],0]]},
+  pt:{t:"Tour pela RobinVault",p:["A RobinVault permite investir em ações tokenizadas e receber parte das taxas que outros investidores pagam ao negociar.","O dinheiro pode vir da BNB Chain, Arbitrum, Ethereum ou Base.","Há um vault por ativo — oito no total, incluindo Meta, Microsoft, Nvidia, Google, Amazon e um fundo de ouro.","Em Recursos: revisão de segurança, relatórios de risco, como funciona e transparência ao vivo.","O site funciona em português, inglês e espanhol."],
+   q:[["Segundo a página inicial, de onde vem o ganho?",["Das taxas que outros investidores pagam ao negociar","De uma taxa de juros fixa","Da entrada de novos usuários"],0],["Quantos vaults apareceram?",["Oito","Dois","Vinte"],0],["Onde ficam os relatórios de risco?",["Em Recursos","Em Meu portfólio","Não são publicados"],0]]}},
+ m3l2:{len:1,
+  en:{t:"Reading a vault",p:["META/USDG: the vault pairs the Meta stock token with USDG, a digital dollar.","The 30-day APR is an estimate from the last 30 days of fees — not a promise.","Pool fee is what each trade pays to the pool.","Fees 24h and Volume 24h show the last day of activity.","Open means accepting deposits; Thin pool means the pool is still small."],
+   q:[["Is the 30-day APR guaranteed?",["No, it changes every day","Yes, for 30 days","Yes, for a year"],0],["What is USDG?",["A digital dollar","A stock","A wallet"],0],["What does “Thin pool” mean?",["The pool is still small","The vault is closed for good","Fees are zero"],0]]},
+  pt:{t:"Como ler um vault",p:["META/USDG: o vault junta o token da ação da Meta com o USDG, um dólar digital.","O APR de 30 dias é uma estimativa a partir das taxas dos últimos 30 dias — não é promessa.","Taxa da pool (Pool fee) é o que cada negociação paga à pool.","Fees 24h e Volume 24h mostram o movimento do último dia.","Aberto (Open) aceita depósitos; Pool rasa (Thin pool) quer dizer que a pool ainda é pequena."],
+   q:[["O APR de 30 dias é garantido?",["Não, muda todos os dias","Sim, por 30 dias","Sim, por um ano"],0],["O que é o USDG?",["Um dólar digital","Uma ação","Uma carteira"],0],["O que quer dizer “Pool rasa”?",["A pool ainda é pequena","O vault fechou de vez","As taxas são zero"],0]]}},
+ m4l1:{len:1.5,
+  en:{t:"Making a deposit",p:["Choose where your money is: BSC, Arbitrum, Ethereum, Base — or Robinhood if you already have USDG.","Choose the asset: USDC, USDT, ETH or BNB.","Type the amount in dollars. Current limit: 5,000 USDG per wallet.","The Review shows each step. The entry cost is 0.25% and stays in the vault.","You confirm you are not in a restricted country, then sign in your own wallet."],
+   q:[["What entry cost does the Review show?",["0.25%","2%","No cost"],0],["What is the current limit per wallet?",["5,000 USDG","100 USDG","No limit"],0],["Who signs the transaction?",["You, in your own wallet","RobinVault, for you","Your bank"],0]]},
+  pt:{t:"Fazendo um depósito",p:["Escolha onde seu dinheiro está: BSC, Arbitrum, Ethereum, Base — ou Robinhood se já tiver USDG.","Escolha a moeda: USDC, USDT, ETH ou BNB.","Digite o valor em dólares. Limite atual: 5.000 USDG por carteira.","A Revisão mostra cada etapa. O custo de entrada é 0,25% e fica no vault.","Você confirma que não está num país restrito e assina na sua própria carteira."],
+   q:[["Qual custo de entrada aparece na Revisão?",["0,25%","2%","Nenhum"],0],["Qual é o limite atual por carteira?",["5.000 USDG","100 USDG","Sem limite"],0],["Quem assina a transação?",["Você, na sua própria carteira","A RobinVault, por você","O seu banco"],0]]}},
+ m5l1:{len:1.5,
+  en:{t:"Earning and withdrawing",p:["1. You deposit: Relay converts your money into USDG on Robinhood Chain.","2. The vault earns: fees from the stock's Uniswap pool, collected every 12 hours.","3. You withdraw: sign a request with no gas and choose the network and asset.","In high volatility the vault pauses itself; your money stays in and keeps earning.","The in-kind exit (stock + USDG) stays available during a pause.","Yield comes from swap fees and is not guaranteed."],
+   q:[["Where does the yield come from?",["Swap fees in the Uniswap pool","A fixed promise","New deposits"],0],["What happens in high volatility?",["The vault pauses itself for safety","Your money is lost","Fees double"],0],["Which exit stays available during a pause?",["The in-kind exit: stock + USDG","None","Only by email"],0]]},
+  pt:{t:"Render e sacar",p:["1. Você deposita: a Relay converte seu dinheiro em USDG na Robinhood Chain.","2. O vault rende: taxas da pool da Uniswap daquela ação, recolhidas a cada 12 horas.","3. Você saca: assina um pedido sem gas e escolhe a rede e a moeda.","Em alta volatilidade o vault se pausa sozinho; seu dinheiro fica e continua rendendo.","A saída em espécie (ação + USDG) continua disponível durante a pausa.","O rendimento vem das taxas de swap e não é garantido."],
+   q:[["De onde vem o rendimento?",["Das taxas de swap na pool da Uniswap","De uma promessa fixa","De novos depósitos"],0],["O que acontece em alta volatilidade?",["O vault se pausa sozinho por segurança","Você perde o dinheiro","As taxas dobram"],0],["Qual saída continua disponível na pausa?",["A saída em espécie: ação + USDG","Nenhuma","Só por e-mail"],0]]}},
+ m7l1:{len:1.5,
+  en:{t:"The risks",p:["Stock tokens are a debt security of the issuer, not the stock itself.","Robinhood Chain: risk of technical failure or a price depeg.","Uniswap: impermanent loss and price range — you can end up with less than if you had held the stock.","Relay moves money between networks; USDG is rated low risk.","Never sign Permit, Permit2, eth_sign or setApprovalForAll, and never share your seed phrase."],
+   q:[["What is a Robinhood stock token?",["A debt security of the issuer that tracks the stock price","The stock itself","A bank deposit"],0],["What is the main economic risk in Uniswap?",["Impermanent loss and the price range","There is none","Too many fees"],0],["Your wallet asks you to sign setApprovalForAll for RobinVault. What do you do?",["Reject it","Sign it","Share your seed phrase"],0]]},
+  pt:{t:"Os riscos",p:["Tokens de ações são título de dívida do emissor, não a ação em si.","Robinhood Chain: risco de falha técnica ou de descolamento de preço.","Uniswap: perda impermanente e faixa de preço — você pode acabar com menos do que se tivesse só a ação.","A Relay move dinheiro entre redes; o USDG tem risco baixo.","Nunca assine Permit, Permit2, eth_sign ou setApprovalForAll, e nunca compartilhe sua seed phrase."],
+   q:[["O que é um token de ação da Robinhood?",["Um título de dívida do emissor que acompanha o preço da ação","A própria ação","Um depósito bancário"],0],["Qual é o principal risco econômico na Uniswap?",["Perda impermanente e a faixa de preço","Não há nenhum","Taxas demais"],0],["Sua carteira pede para assinar setApprovalForAll para a RobinVault. O que fazer?",["Recusar","Assinar","Passar a seed phrase"],0]]}},
+ m8l1:{len:1.5,
+  en:{t:"Transparency and rules",p:["The contracts had an AI-assisted audit; an independent professional audit is still to come.","Owner: a single hardware wallet. Limits: 100k USDG per vault and 5k per wallet.","Non-custodial: RobinVault doesn't hold your keys or move your funds.","18+ only; not offered in the US, Canada, UK, Switzerland, UAE or sanctioned countries; no VPN.","Pix purchases are handled by Transak, an independent company."],
+   q:[["Does RobinVault hold your keys?",["No, it is non-custodial","Yes","Only for big deposits"],0],["Can you use a VPN to access it from a restricted country?",["No, the terms forbid it","Yes","Only on weekends"],0],["Who handles Pix purchases?",["Transak, an independent company","RobinVault itself","Your bank"],0]]},
+  pt:{t:"Transparência e regras",p:["Os contratos tiveram auditoria assistida por IA; a auditoria profissional independente ainda vai acontecer.","Dono: uma única carteira de hardware. Limites: 100 mil USDG por vault e 5 mil por carteira.","Sem custódia: a RobinVault não guarda suas chaves nem move seus fundos.","Só maiores de 18; não oferecida nos EUA, Canadá, Reino Unido, Suíça, Emirados ou países sob sanção; sem VPN.","Compras com Pix são feitas pela Transak, uma empresa independente."],
+   q:[["A RobinVault guarda suas chaves?",["Não, ela não tem custódia","Sim","Só em depósitos grandes"],0],["Dá para usar VPN para acessar de um país restrito?",["Não, os termos proíbem","Sim","Só nos fins de semana"],0],["Quem faz as compras com Pix?",["A Transak, uma empresa independente","A própria RobinVault","O seu banco"],0]]}}
+};
+const ORDER=[];MODS.forEach((m,mi)=>m.ls.forEach((l,li)=>{if(l.id){LES[l.id].mod=mi;LES[l.id].num=li+1;ORDER.push(l.id)}}));
+const store={get(k){try{return localStorage.getItem('rvc_'+k)}catch(e){return null}},set(k,v){try{localStorage.setItem('rvc_'+k,v)}catch(e){}}};
+const root=document.documentElement,v=document.getElementById('v'),src=document.getElementById('src'),cap=document.getElementById('cap');
+const navPt=(navigator.language||'').toLowerCase().startsWith('pt');
+const st={lang:store.get('lang')||(navPt?'pt':'en'),sub:store.get('sub')||(navPt?'pt':'en'),size:store.get('size')||'0',theme:store.get('theme')||'',cur:ORDER[0]};
+const isDone=id=>store.get('done_'+id)==='1';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function press(id,val){document.querySelectorAll('#'+id+' button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===val))}
+let SUBS=null,cues=[],lastCue=null;
+fetch('media/subs.json').then(r=>r.json()).then(j=>{SUBS=j;setSubs()}).catch(()=>{});
+function fileOf(id){return LES[id].file||id}
+function loadVideo(keepTime){
+  const t=keepTime?v.currentTime:0,playing=!v.paused&&keepTime;
+  src.src='media/'+fileOf(st.cur)+'_'+st.lang+'.mp4';
+  v.poster='media/poster_'+(st.cur==='m1l1'?'':st.cur+'_')+st.lang+'.jpg';
+  v.load();setSubs();
+  v.addEventListener('loadedmetadata',()=>{if(t)v.currentTime=t;if(playing)v.play().catch(()=>{})},{once:true});
+}
+function setSubs(){cues=(SUBS&&st.sub!=='off')?(SUBS[st.cur+'_'+st.lang+'_'+st.sub]||[]):[];lastCue=undefined;showCue()}
+function showCue(){const t=v.currentTime,c=cues.find(x=>t>=x[0]&&t<x[1])||null;if(c===lastCue)return;lastCue=c;cap.innerHTML=c?'<span>'+esc(c[2])+'</span>':''}
+v.addEventListener('timeupdate',showCue);v.addEventListener('seeked',showCue);
+function title(l,lang){return l.id?LES[l.id][lang].t:l[lang]}
+function render(){
+  const U=UI[st.lang],L=LES[st.cur],C=L[st.lang];root.lang=st.lang==='pt'?'pt-BR':'en';
+  document.querySelectorAll('[data-i]').forEach(e=>{const k=e.dataset.i;if(U[k])e.textContent=U[k]});
+  document.title=(st.lang==='pt'?'Curso RobinVault':'RobinVault Course')+' — '+C.t;
+  document.getElementById('kick').textContent=U.mod+' '+L.mod+' · '+U.les+' '+L.num;
+  document.getElementById('lt').textContent=C.t;
+  document.getElementById('len').textContent=String(L.len).replace('.',st.lang==='pt'?',':'.')+' '+U.min;
+  const d=document.getElementById('done');d.textContent=isDone(st.cur)?U.marked:U.mark;d.classList.toggle('done',isDone(st.cur));
+  const i=ORDER.indexOf(st.cur),pv=document.getElementById('prev'),nx=document.getElementById('next');
+  pv.textContent=U.prev;nx.textContent=U.next;pv.disabled=i===0;nx.disabled=i===ORDER.length-1;
+  document.getElementById('points').innerHTML=C.p.map(p=>'<li>'+esc(p)+'</li>').join('');
+  document.getElementById('quiz').innerHTML=C.q.map((q,k)=>'<div class="q"><p>'+(k+1)+'. '+esc(q[0])+'</p><div class="opts">'+q[1].map((o,j)=>'<button data-q="'+k+'" data-o="'+j+'">'+esc(o)+'</button>').join('')+'</div><p class="fb" id="fb'+k+'" aria-live="polite"></p></div>').join('');
+  let n=0,dn=0;
+  document.getElementById('mods').innerHTML=MODS.map((m,mi)=>'<div class="mod"><h3><span class="n">'+mi+'</span>'+esc(m[st.lang])+'</h3>'+m.ls.map(l=>{n++;
+    if(!l.id)return '<div class="les"><span>'+esc(l[st.lang])+'</span><span class="tag">'+U.soon+'</span></div>';
+    const cur=l.id===st.cur,ok=isDone(l.id);if(ok)dn++;
+    const tag=cur?'<span class="tag now">'+U.now+'</span>':ok?'<span class="tag ok">'+U.doneTag+'</span>':'';
+    return '<a class="les go'+(cur?' on':'')+'" href="#'+l.id+'"'+(cur?' aria-current="page"':'')+'><span>'+esc(title(l,st.lang))+'</span>'+tag+'</a>'}).join('')+'</div>').join('');
+  document.getElementById('pbar').style.width=(dn/n*100)+'%';
+  press('lang',st.lang);press('sub',st.sub);press('size',st.size);press('theme',st.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+  root.dataset.size=st.size;if(st.theme)root.dataset.theme=st.theme;
+}
+function go(id,scroll){if(!LES[id]||id===st.cur&&scroll!==false&&src.src)return;st.cur=id;render();loadVideo(false);if(scroll)document.getElementById('lesson').scrollIntoView({behavior:'smooth'})}
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(LES[h]&&h!==st.cur)go(h,true)});
+document.getElementById('lang').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.v===st.lang)return;
+  if(st.sub===st.lang)st.sub=b.dataset.v;st.lang=b.dataset.v;store.set('lang',st.lang);store.set('sub',st.sub);render();loadVideo(true)});
+document.getElementById('sub').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.sub=b.dataset.v;store.set('sub',st.sub);press('sub',st.sub);setSubs()});
+document.getElementById('size').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.size=b.dataset.v;store.set('size',st.size);render()});
+document.getElementById('theme').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.theme=b.dataset.v;store.set('theme',st.theme);render()});
+document.getElementById('done').addEventListener('click',()=>{store.set('done_'+st.cur,isDone(st.cur)?'0':'1');render()});
+document.getElementById('prev').addEventListener('click',()=>{const i=ORDER.indexOf(st.cur);if(i>0)location.hash=ORDER[i-1]});
+document.getElementById('next').addEventListener('click',()=>{const i=ORDER.indexOf(st.cur);if(i<ORDER.length-1)location.hash=ORDER[i+1]});
+v.addEventListener('ended',()=>{if(!isDone(st.cur)){store.set('done_'+st.cur,'1');render()}});
+document.getElementById('quiz').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const q=+b.dataset.q,o=+b.dataset.o,U=UI[st.lang],ok=LES[st.cur][st.lang].q[q][2]===o;
+  b.closest('.opts').querySelectorAll('button').forEach(x=>x.classList.remove('ok','no'));b.classList.add(ok?'ok':'no');document.getElementById('fb'+q).textContent=ok?U.right:U.wrong});
+const h0=location.hash.slice(1);if(LES[h0])st.cur=h0;
+render();loadVideo(false);
+}
+</script>
+</body>
+</html>
